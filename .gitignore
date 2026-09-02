@@ -16,3 +16,8 @@ trimble-mcp/trimble_mcp/bridge/TrimbleBridge.exe.config
 
 # Ban ve PDF tham chieu - giu tren dia, khong dua vao git (~148 MB)
 ban-ve/
+
+# Cau hinh MCP chua duong dan tuyet doi cua tung may.
+# Chay "python install.py" de sinh lai. Ban mau: .mcp.json.example
+.mcp.json
+mcp_config.json

@@ -54,8 +54,10 @@ Yêu cầu:
 pip install -r requirements.txt
 ```
 
-Đăng ký server — đã có sẵn trong `.mcp.json` và `mcp_config.json` ở **gốc dự án**.
-Nếu chép sang máy khác, sửa lại hai đường dẫn cho khớp máy đó:
+Đăng ký server — cách nhanh nhất là chạy `python install.py` **ở gốc dự án**, nó tự
+dò đường dẫn của máy bạn và sinh ra `.mcp.json`.
+
+Muốn tự viết tay thì thêm mục sau, nhớ sửa hai đường dẫn cho khớp máy:
 
 ```jsonc
 {

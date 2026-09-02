@@ -136,9 +136,11 @@ python test_connection.py
 
 ### 3. Cấu hình MCP
 
-Dự án đã có sẵn [.mcp.json](../.mcp.json) ở **gốc dự án** cho Claude Code.
-Với Claude Desktop / Cursor / Cline, thêm vào file cấu hình MCP của chúng — nhớ
-sửa hai đường dẫn cho khớp máy bạn:
+Cách nhanh nhất là chạy `python install.py` **ở gốc dự án** — nó tự dò đường dẫn
+của máy bạn và sinh ra `.mcp.json`.
+
+Muốn tự viết tay thì thêm mục sau vào cấu hình MCP của công cụ bạn dùng, nhớ sửa
+hai đường dẫn cho khớp máy:
 
 ```json
 {

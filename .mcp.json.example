@@ -3,9 +3,9 @@
     "autocad-2022": {
       "command": "C:/Python314/python.exe",
       "args": [
-        "C:/Users/Admin/Desktop/PP/autocad-mcp/server.py"
+        "C:/duong/dan/toi/autocad-trimble-mcp/autocad-mcp/server.py"
       ],
-      "cwd": "C:/Users/Admin/Desktop/PP/autocad-mcp",
+      "cwd": "C:/duong/dan/toi/autocad-trimble-mcp/autocad-mcp",
       "env": {
         "PYTHONUNBUFFERED": "1",
         "PYTHONIOENCODING": "utf-8"
@@ -14,9 +14,9 @@
     "trimble-connect": {
       "command": "C:/Python314/python.exe",
       "args": [
-        "C:/Users/Admin/Desktop/PP/trimble-mcp/trimble_server.py"
+        "C:/duong/dan/toi/autocad-trimble-mcp/trimble-mcp/trimble_server.py"
       ],
-      "cwd": "C:/Users/Admin/Desktop/PP/trimble-mcp",
+      "cwd": "C:/duong/dan/toi/autocad-trimble-mcp/trimble-mcp",
       "env": {
         "PYTHONUNBUFFERED": "1",
         "PYTHONIOENCODING": "utf-8"
