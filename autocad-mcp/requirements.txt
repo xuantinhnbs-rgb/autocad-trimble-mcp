@@ -1,0 +1,10 @@
+# Yeu cau he thong: Windows + AutoCAD (2020 tro len) + Python 3.10 tro len
+
+# API mcp.server.mcpserver chi co tu mcp 2.x (ban 1.x dung fastmcp, khong tuong thich)
+mcp>=2.1.0
+
+# Giao tiep COM voi AutoCAD
+pywin32>=306
+
+# Duong du phong khi win32com khong bam duoc vao AutoCAD dang chay
+comtypes>=1.2.0

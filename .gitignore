@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Cầu nối .NET của Trimble — sinh tự động ở lần chạy đầu, không commit
+trimble-mcp/trimble_mcp/bridge/TrimbleBridge.exe
+trimble-mcp/trimble_mcp/bridge/TrimbleBridge.exe.config
+
+# File tạm & bản lưu
+*.bak
+*.log
+*.tmp
+
+# Ban ve PDF tham chieu - giu tren dia, khong dua vao git (~148 MB)
+ban-ve/
