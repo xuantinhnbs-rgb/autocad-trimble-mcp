@@ -1,95 +1,138 @@
-# PP — MCP Server cho AutoCAD & Trimble Connect
+# autocad-trimble-mcp
 
-Hai MCP server độc lập, cho phép AI (Claude Code, Claude Desktop, Cursor, Cline…)
-điều khiển trực tiếp phần mềm đang chạy trên máy Windows này.
+***English** · [Tiếng Việt](README.vi.md)*
 
-| Server | Điều khiển | Số tool | Tài liệu |
-|---|---|---|---|
-| `autocad-2022` | AutoCAD 2022 qua COM | 49 | [autocad-mcp/README.md](autocad-mcp/README.md) |
-| `trimble-connect` | Trimble Connect for Desktop qua .NET API | 34 | [trimble-mcp/README.md](trimble-mcp/README.md) |
+[![CI](https://github.com/xuantinhnbs-rgb/autocad-trimble-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/xuantinhnbs-rgb/autocad-trimble-mcp/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
+[![Platform](https://img.shields.io/badge/platform-Windows-lightgrey.svg)](#requirements)
 
-Cả hai đều dùng chung một hợp đồng trả về: **mọi tool đều trả JSON có khóa `ok`**
-(`{"ok": true, ...}` hoặc `{"ok": false, "error": "..."}`), không tool nào ném ngoại lệ
-ra ngoài — AI luôn nhận được thông điệp đọc được thay vì vệt lỗi thô.
+Two independent MCP servers that let Claude — or any MCP client such as Claude
+Code, Claude Desktop, Cursor or Cline — drive CAD and BIM software running on
+your Windows machine.
 
----
+| Server | Drives | Tools | Transport | Docs |
+|---|---|---|---|---|
+| `autocad-2022` | AutoCAD 2022+ | 49 | COM | [autocad-mcp/](autocad-mcp/README.md) |
+| `trimble-connect` | Trimble Connect for Desktop | 34 | .NET Desktop API via a C# bridge | [trimble-mcp/](trimble-mcp/README.md) |
 
-## 📁 Cấu trúc dự án
+Both servers share one response contract: **every tool returns JSON with an `ok`
+key** — `{"ok": true, ...}` on success, `{"ok": false, "error": "..."}` on failure.
+No tool ever lets an exception escape, so the model always receives a readable
+message instead of a raw COM or .NET stack trace.
 
-```
-autocad-trimble-mcp/
-├── install.py          # dò đường dẫn của máy hiện tại rồi sinh .mcp.json
-├── .mcp.json.example   # bản mẫu để xem cấu trúc cấu hình
-│
-├── autocad-mcp/        # ⬅ MỌI THỨ của MCP AutoCAD nằm trong đây
-├── trimble-mcp/        # ⬅ MỌI THỨ của MCP Trimble nằm trong đây
-│
-├── ban-ve/             # PDF bản vẽ tham chiếu (không đưa vào git)
-└── _archive/           # code cũ & file rỗng, giữ lại phòng khi cần
-```
-
-`.mcp.json` **không nằm trong repo** vì nó chứa đường dẫn tuyệt đối riêng của
-từng máy. Chạy `install.py` để sinh ra file này cho máy của bạn.
-
-Mỗi thư mục app là **một bộ hoàn chỉnh, tự đứng được**: có `README.md`,
-`requirements.txt` và điểm khởi chạy riêng. Muốn chia sẻ một app cho người khác,
-chỉ cần nén đúng thư mục đó gửi đi.
+> **Note on documentation language.** The detailed per-server docs and all code
+> comments are written in Vietnamese. This README is the English entry point.
 
 ---
 
-## 🚀 Cài đặt
+## What you can do with it
 
-**Yêu cầu:** Windows, Python 3.10 trở lên, và phần mềm tương ứng đang cài trên máy
-(AutoCAD 2022+ / Trimble Connect for Desktop).
+**AutoCAD** — draw lines, polylines, arcs, circles, splines and hatches; batch-draw
+hundreds of entities in one call; create and manage layers; add dimensions, leaders
+and text; find and replace text across a drawing; query entities and drawing
+statistics; run AutoLISP; export to PDF or DXF.
+
+**Trimble Connect** — list and load models; find objects by IFC type, attribute or
+selection; read full IFC property sets; walk the assembly hierarchy; colour, hide
+and isolate objects; save and activate views; drive the camera; reposition models.
+
+---
+
+## Requirements
+
+- **Windows.** Both servers talk to desktop applications through Windows-only APIs.
+- **Python 3.10 or newer.**
+- **AutoCAD 2022 or newer** for the AutoCAD server (needs `pywin32`).
+- **Trimble Connect for Desktop** plus **.NET Framework 4.x** for the Trimble server.
+  .NET Framework ships with Windows 10 and 11 — no Visual Studio or .NET SDK needed.
+
+You only need the software for the server you actually intend to use.
+
+---
+
+## Install
 
 ```powershell
-git clone https://github.com/<tai-khoan>/autocad-trimble-mcp.git
+git clone https://github.com/xuantinhnbs-rgb/autocad-trimble-mcp.git
 cd autocad-trimble-mcp
 
-pip install -r autocad-mcp/requirements.txt     # nếu dùng AutoCAD
-pip install -r trimble-mcp/requirements.txt     # nếu dùng Trimble Connect
+pip install -r autocad-mcp/requirements.txt     # for AutoCAD
+pip install -r trimble-mcp/requirements.txt     # for Trimble Connect
 
 python install.py
 ```
 
-`install.py` tự dò `python.exe` và thư mục dự án **trên máy đang chạy**, nạp thử
-từng server để chắc chắn đủ thư viện, rồi ghi `.mcp.json` với đường dẫn đúng.
-Không phải sửa tay đường dẫn nào.
+`install.py` detects the Python interpreter and project directory **on the machine
+it is running on**, verifies the required packages, loads each server to confirm
+its tools register, and only then writes `.mcp.json`. You never edit a path by hand.
 
 ```powershell
-python install.py --check            # chỉ kiểm tra, không ghi gì
-python install.py --autocad          # chỉ cấu hình AutoCAD
-python install.py --trimble          # chỉ cấu hình Trimble
-python install.py --claude-desktop   # ghi thêm vào config của Claude Desktop
+python install.py --check            # verify only, write nothing
+python install.py --autocad          # configure AutoCAD only
+python install.py --trimble          # configure Trimble Connect only
+python install.py --claude-desktop   # also write Claude Desktop's config
 ```
 
-Xong thì mở Claude Code **tại thư mục gốc của dự án** (nơi chứa `.mcp.json`), gõ
-`/mcp` để kiểm tra server đã kết nối chưa.
+Then open Claude Code **in the project root** (where `.mcp.json` was written) and
+run `/mcp` to confirm the servers connected.
 
-> Với Cursor / Cline / Claude Desktop: chép nội dung `.mcp.json` vừa sinh ra vào
-> file cấu hình MCP của công cụ đó, hoặc dùng cờ `--claude-desktop` ở trên.
-
----
-
-## 🔧 Cài thủ công
-
-Nếu không muốn chạy `install.py`, chép [.mcp.json.example](.mcp.json.example) thành
-`.mcp.json` rồi sửa `command`, `args`, `cwd` cho khớp máy bạn.
-
-Dùng dấu `/` trong đường dẫn JSON để khỏi phải escape `\\` — Windows nhận bình thường.
-Phải dùng `python.exe`, **không dùng `pythonw.exe`**: MCP giao tiếp qua stdio nên cần
-stdout, mà `pythonw.exe` thì không có.
+`.mcp.json` is deliberately **not** in the repository: it contains absolute paths
+that are valid on exactly one machine. See [.mcp.json.example](.mcp.json.example)
+for its shape.
 
 ---
 
-## ❓ Gặp lỗi?
+## How the Trimble bridge works
 
-| Triệu chứng | Xử lý |
+Trimble Connect for Desktop exposes no COM API. It opens a .NET Desktop API
+(`Trimble.Connect.Desktop.API.dll`, .NET Framework 4.8) over an internal IPC
+channel, and Python has no `pythonnet` build for recent versions. This project
+bridges the gap with a small C# helper:
+
+```
+Claude ──MCP/stdio──► trimble_server.py ──JSON lines──► TrimbleBridge.exe ──► Trimble Connect
+                          (Python)          (stdin/stdout)     (.NET 4.8)
+```
+
+`TrimbleBridge.exe` is **compiled on first run** by `csc.exe`, which ships with
+every Windows install — so there is no build step and no `.exe` in the repository.
+The connection is held open for the server's lifetime, and the bridge reconnects
+by itself if Trimble Connect is closed and reopened.
+
+---
+
+## Project layout
+
+```
+autocad-trimble-mcp/
+├── install.py            # detects this machine's paths, writes .mcp.json
+├── .mcp.json.example     # reference shape of the config
+├── autocad-mcp/          # everything for the AutoCAD server
+├── trimble-mcp/          # everything for the Trimble server
+└── .github/workflows/    # CI: loads both servers on Windows
+```
+
+Each server folder is **self-contained** — its own README, `requirements.txt` and
+entry point. To share just one of them, zip that folder and send it.
+
+---
+
+## Troubleshooting
+
+| Symptom | Fix |
 |---|---|
-| `/mcp` báo server không kết nối | Chạy `python install.py --check` xem thiếu gì |
-| `ModuleNotFoundError: mcp` | `pip install -r <thư-mục-app>/requirements.txt` |
-| Server chạy nhưng mọi tool báo lỗi | Phần mềm chưa mở, hoặc chưa mở file/dự án nào trong đó |
-| Lỗi tiếng Việt khi chạy script tay | Đặt `PYTHONIOENCODING=utf-8` trước khi chạy |
+| `/mcp` shows the server as not connected | Run `python install.py --check` to see what is missing |
+| `ModuleNotFoundError: mcp` | `pip install -r <server-folder>/requirements.txt` |
+| Server starts but every tool returns an error | The application is not running, or has no drawing/project open |
+| Garbled output running scripts by hand | Set `PYTHONIOENCODING=utf-8` first |
+| `No Trimble Connect instance found` | Open Trimble Connect for Desktop, then call `refresh` |
 
-Chi tiết theo từng app xem README riêng: [AutoCAD](autocad-mcp/README.md) ·
-[Trimble Connect](trimble-mcp/README.md).
+Per-server troubleshooting lives in [autocad-mcp/README.md](autocad-mcp/README.md)
+and [trimble-mcp/README.md](trimble-mcp/README.md).
+
+---
+
+## License
+
+[MIT](LICENSE) — free for any use including commercial, keep the copyright notice.

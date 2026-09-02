@@ -21,3 +21,9 @@ ban-ve/
 # Chay "python install.py" de sinh lai. Ban mau: .mcp.json.example
 .mcp.json
 mcp_config.json
+
+# Code cu va file rong - giu tren dia lam tu lieu, khong day len repo
+_archive/
+
+# Cau hinh editor rieng cua tung nguoi
+.vscode/

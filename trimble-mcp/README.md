@@ -6,11 +6,11 @@ MCP Server cho phép các mô hình AI (Claude Code, Claude Desktop, Cursor, Cli
 
 ## ⚙️ Cách nó hoạt động
 
-Trimble Connect for Desktop **không có COM API**. Thay vào đó nó mở một *Desktop .NET API* (`Trimble.Connect.Desktop.API.dll`, .NET Framework 4.8) qua kênh IPC nội bộ. Python 3.14 lại chưa có `pythonnet`, nên dự án này đi đường vòng bằng một cầu nối C# nhỏ:
+Trimble Connect for Desktop **không có COM API**. Thay vào đó nó mở một *Desktop .NET API* (`Trimble.Connect.Desktop.API.dll`, .NET Framework 4.8) qua kênh IPC nội bộ. `pythonnet` lại chưa hỗ trợ các bản Python mới, nên dự án này đi đường vòng bằng một cầu nối C# nhỏ:
 
 ```
 Claude  ──MCP/stdio──►  trimble_server.py  ──JSON-lines──►  TrimbleBridge.exe  ──►  Trimble Connect
-             (Python 3.14)                    (stdin/stdout)      (.NET 4.8)
+               (Python)                       (stdin/stdout)      (.NET 4.8)
 ```
 
 `TrimbleBridge.exe` **được biên dịch tự động ở lần chạy đầu tiên** bằng `csc.exe` có sẵn trong mọi bản Windows (`C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe`) — **không cần cài Visual Studio hay .NET SDK**. Sửa file `.cs` rồi chạy lại là nó tự biên dịch lại.
@@ -47,7 +47,7 @@ Server tự xử lý các tình huống sau mà không cần khởi động lạ
 Yêu cầu:
 
 * Windows + **Trimble Connect for Desktop** đã cài (kèm thư mục `C:\Program Files\Trimble\Trimble Connect`).
-* Python 3.14 với gói `mcp`.
+* Python 3.10 trở lên với gói `mcp` (đã kiểm chứng tới 3.14).
 * .NET Framework 4.x (mặc định đã có trong Windows 10/11).
 
 ```bash

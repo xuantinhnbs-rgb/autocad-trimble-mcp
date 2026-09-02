@@ -1,0 +1,18 @@
+# Chuẩn hoá xuống dòng: kho lưu LF, checkout ra Windows tự thành CRLF.
+* text=auto eol=lf
+
+# File phải giữ CRLF thì Windows mới chạy đúng
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+*.vbs  text eol=crlf
+
+# AutoCAD script: SCR chạy theo từng dòng, sai xuống dòng là hỏng lệnh
+*.scr  text eol=crlf
+*.lsp  text eol=crlf
+
+# Nhị phân — không đụng vào
+*.pdf  binary
+*.exe  binary
+*.png  binary
+*.jpg  binary
+*.ifc  binary

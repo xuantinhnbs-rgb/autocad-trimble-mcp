@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  load-servers:
+    # Ca hai server chi chay tren Windows: mot ben COM, mot ben .NET Framework.
+    runs-on: windows-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cai Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cai thu vien
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r autocad-mcp/requirements.txt
+          pip install -r trimble-mcp/requirements.txt
+
+      - name: Kiem tra cu phap toan bo ma nguon
+        run: python -m compileall -q autocad-mcp trimble-mcp install.py
+
+      # install.py --check nap that ca hai server va dem so tool. Khong can
+      # AutoCAD hay Trimble Connect duoc cai: ca hai client deu ket noi lazy,
+      # nen viec dang ky tool khong cham vao ung dung nao.
+      - name: Nap thu ca hai MCP server
+        env:
+          PYTHONIOENCODING: utf-8
+        run: python install.py --check
+
+      - name: Kiem tra .mcp.json.example la JSON hop le
+        run: python -c "import json; json.load(open('.mcp.json.example', encoding='utf-8')); print('.mcp.json.example OK')"
