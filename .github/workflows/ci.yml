@@ -7,8 +7,35 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Chi can quyen doc ma nguon.
+permissions:
+  contents: read
+
+# Push moi len cung mot nhanh se huy lan chay cu con dang do.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  load-servers:
+  lint:
+    name: Lint (ruff)
+    # Lint khong cham vao COM hay .NET nen chay tren Linux cho nhanh.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cai ruff
+        run: pip install -r requirements-dev.txt
+
+      - name: ruff check
+        run: ruff check --output-format=github .
+
+  test:
+    name: Test (Python ${{ matrix.python-version }})
     # Ca hai server chi chay tren Windows: mot ben COM, mot ben .NET Framework.
     runs-on: windows-latest
 
@@ -16,6 +43,9 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.10", "3.11", "3.12", "3.13"]
+
+    env:
+      PYTHONIOENCODING: utf-8
 
     steps:
       - uses: actions/checkout@v4
@@ -30,17 +60,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r autocad-mcp/requirements.txt
           pip install -r trimble-mcp/requirements.txt
+          pip install -r requirements-dev.txt
 
+      # compileall bao trum ca nhung file khong test nao import (app.py,
+      # cac script vi du), nen bat duoc loi cu phap o moi noi.
       - name: Kiem tra cu phap toan bo ma nguon
-        run: python -m compileall -q autocad-mcp trimble-mcp install.py
+        run: python -m compileall -q autocad-mcp trimble-mcp install.py tests
 
-      # install.py --check nap that ca hai server va dem so tool. Khong can
-      # AutoCAD hay Trimble Connect duoc cai: ca hai client deu ket noi lazy,
-      # nen viec dang ky tool khong cham vao ung dung nao.
+      # Test khong can AutoCAD hay Trimble Connect duoc cai: ca hai client deu
+      # ket noi lazy, nen viec dang ky tool khong cham vao ung dung nao.
+      - name: Chay test
+        run: pytest
+
       - name: Nap thu ca hai MCP server
-        env:
-          PYTHONIOENCODING: utf-8
         run: python install.py --check
-
-      - name: Kiem tra .mcp.json.example la JSON hop le
-        run: python -c "import json; json.load(open('.mcp.json.example', encoding='utf-8')); print('.mcp.json.example OK')"
