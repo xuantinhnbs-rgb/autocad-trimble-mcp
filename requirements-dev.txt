@@ -1,5 +1,5 @@
 # Chỉ cần khi phát triển / chạy CI. Không cần để dùng hai MCP server.
 #   pip install -r requirements-dev.txt
 
-ruff>=0.6           # lint (cấu hình trong pyproject.toml)
+ruff>=0.16.5           # lint (cấu hình trong pyproject.toml)
 pytest>=7.0         # test (tests/)
