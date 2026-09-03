@@ -1,11 +1,11 @@
 # Dependabot mở PR khi có bản mới cho thư viện Python và cho action của CI.
 version: 2
 updates:
+  # pip quet de quy tu goc, nen "/" da bao ca autocad-mcp/ va trimble-mcp/.
+  # Liet ke them hai thu muc con se sinh PR trung (mot PR cho moi thu muc,
+  # cong voi mot PR tu lan quet goc cho cung mot goi).
   - package-ecosystem: pip
-    directories:
-      - "/"
-      - "/autocad-mcp"
-      - "/trimble-mcp"
+    directory: "/"
     schedule:
       interval: monthly
     open-pull-requests-limit: 3
