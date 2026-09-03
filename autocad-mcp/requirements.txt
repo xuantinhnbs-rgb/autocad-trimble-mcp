@@ -7,4 +7,4 @@ mcp>=2.1.0
 pywin32>=306
 
 # Duong du phong khi win32com khong bam duoc vao AutoCAD dang chay
-comtypes>=1.2.0
+comtypes>=1.4.16
