@@ -1,15 +1,23 @@
 import sys
 import time
-import win32gui
-import win32con
+
 import win32clipboard
 import win32com.client
+import win32con
+import win32gui
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 # Mã AutoLISP vẽ hình vuông 100x100 và ghi chữ
-lisp_code = """(command "_COLOR" 1) (command "_LINE" "0,0,0" "100,0,0" "") (command "_COLOR" 2) (command "_LINE" "100,0,0" "100,100,0" "") (command "_COLOR" 3) (command "_LINE" "100,100,0" "0,100,0" "") (command "_COLOR" 4) (command "_LINE" "0,100,0" "0,0,0" "") (command "_COLOR" 2) (command "_TEXT" "10,50,0" "6.0" "0" "HINH VUONG 100x100") (command "_ZOOM" "_E")\n"""
+lisp_code = (
+    '(command "_COLOR" 1) (command "_LINE" "0,0,0" "100,0,0" "") '
+    '(command "_COLOR" 2) (command "_LINE" "100,0,0" "100,100,0" "") '
+    '(command "_COLOR" 3) (command "_LINE" "100,100,0" "0,100,0" "") '
+    '(command "_COLOR" 4) (command "_LINE" "0,100,0" "0,0,0" "") '
+    '(command "_COLOR" 2) (command "_TEXT" "10,50,0" "6.0" "0" "HINH VUONG 100x100") '
+    '(command "_ZOOM" "_E")\n'
+)
 
 print("Đang tìm cửa sổ AutoCAD đang mở trên màn hình...")
 

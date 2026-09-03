@@ -18,7 +18,18 @@ from mcp.server.mcpserver import MCPServer
 
 from autocad_client import AcadError, AutoCADClient
 
-mcp = MCPServer("AutoCAD-2022-MCP")
+mcp = MCPServer(
+    "AutoCAD-2022-MCP",
+    instructions=(
+        "Điều khiển AutoCAD đang chạy trên máy này: vẽ hình học, quản lý layer, ghi kích thước "
+        "và chú thích, truy vấn đối tượng, chạy AutoLISP, xuất PDF/DXF.\n"
+        "Mọi thao tác đều cần AutoCAD đang mở VÀ có ít nhất một bản vẽ — gọi "
+        "check_autocad_connection trước để kiểm tra. Đối tượng được định danh bằng handle lấy từ "
+        "list_entities hoặc get_selected_entities.\n"
+        "Cần vẽ từ vài chục đối tượng trở lên thì dùng batch_draw, đừng gọi lẻ từng tool: mỗi lời "
+        "gọi COM tốn khoảng 5 ms."
+    ),
+)
 acad = AutoCADClient()
 
 
@@ -902,7 +913,8 @@ def run_autolisp(expression: str, timeout: float = 20.0) -> dict:
     """Chạy một biểu thức AutoLISP và LẤY VỀ giá trị trả về.
 
     Đây là lối thoát vạn năng cho những việc ActiveX API không làm được.
-    Ví dụ: '(getvar "CLAYER")', '(+ 1 2)', '(vla-get-Count (vla-get-ModelSpace (vla-get-ActiveDocument (vlax-get-acad-object))))'
+    Ví dụ: '(getvar "CLAYER")', '(+ 1 2)',
+    '(vla-get-Count (vla-get-ModelSpace (vla-get-ActiveDocument (vlax-get-acad-object))))'
     Không dùng cho hàm chờ người dùng nhập (getpoint, getstring) - sẽ hết thời gian chờ.
 
     :param expression: Biểu thức AutoLISP, phải bắt đầu bằng '('

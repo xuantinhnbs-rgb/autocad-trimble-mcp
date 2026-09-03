@@ -3,15 +3,15 @@ AutoCAD 2022 MCP Controller & Dashboard GUI
 Ứng dụng điều khiển trung tâm và giao diện kết nối MCP Server cho AutoCAD 2022.
 """
 
-import os
-import sys
-import time
 import json
+import os
 import queue
-import threading
 import subprocess
+import sys
+import threading
+import time
 import tkinter as tk
-from tkinter import ttk, messagebox, scrolledtext
+from tkinter import messagebox, scrolledtext, ttk
 
 # Đảm bảo mã hóa UTF-8
 if hasattr(sys.stdout, "reconfigure"):
@@ -360,11 +360,11 @@ class AutoCADMCPApp:
 
         try:
             self.log("Đang khởi động AutoCAD MCP Server...", "INFO")
-            
+
             # Khởi chạy server process
             env = os.environ.copy()
             env["PYTHONUNBUFFERED"] = "1"
-            
+
             self.server_process = subprocess.Popen(
                 [PYTHON_EXE, SERVER_SCRIPT],
                 cwd=CURRENT_DIR,
@@ -482,8 +482,8 @@ class AutoCADMCPApp:
             client = AutoCADClient()
             doc_info = client.get_document_info()
             layers = client.list_layers()
-            
-            self.log(f"✅ Đã kết nối thành công tới AutoCAD 2022!", "SUCCESS")
+
+            self.log("✅ Đã kết nối thành công tới AutoCAD 2022!", "SUCCESS")
             self.log(f"   - Bản vẽ: {doc_info.get('name')} ({doc_info.get('full_name')})", "SUCCESS")
             self.log(f"   - Số đối tượng ModelSpace: {doc_info.get('model_space_entities_count')}", "INFO")
             self.log(f"   - Số Layer: {len(layers)} (Hiện hành: {doc_info.get('active_layer')})", "INFO")
@@ -507,13 +507,14 @@ class AutoCADMCPApp:
                     if os.path.exists(p):
                         found_path = p
                         break
-                
+
                 if found_path:
                     subprocess.Popen([found_path])
                     self.log(f"✅ Đã gửi lệnh mở AutoCAD từ: {found_path}", "SUCCESS")
                 else:
                     # Thử COM Dispatch
-                    import win32com.client, pythoncom
+                    import pythoncom
+                    import win32com.client
                     pythoncom.CoInitialize()
                     app = win32com.client.Dispatch("AutoCAD.Application.24.1")
                     app.Visible = True
@@ -527,10 +528,10 @@ class AutoCADMCPApp:
     def auto_configure_mcp(self):
         """Tự động ghi cấu hình MCP vào file .mcp.json và Claude Desktop config."""
         self.log("⚙️ Đang thực hiện cấu hình tự động MCP cho các mô hình AI...", "INFO")
-        
+
         # Đảm bảo dùng python.exe (không dùng pythonw.exe vì stdio MCP server cần stdout)
         python_exe = sys.executable.replace("pythonw.exe", "python.exe")
-        
+
         mcp_entry = {
             "command": python_exe,
             "args": [SERVER_SCRIPT],
@@ -598,20 +599,20 @@ class AutoCADMCPApp:
                 from autocad_client import AutoCADClient
                 client = AutoCADClient()
                 client.ensure_connected()
-                
+
                 # Tạo layer TEST_MCP
                 client.create_or_set_layer("TEST_MCP_SQUARE", color=1, activate=True)
-                
+
                 # Vẽ hình vuông 100x100
-                res = client.add_rectangle((0, 0), 100, 100, layer="TEST_MCP_SQUARE", color=1)
-                
+                client.add_rectangle((0, 0), 100, 100, layer="TEST_MCP_SQUARE", color=1)
+
                 # Thêm chữ Text
                 client.add_text("TEST MCP: HINH VUONG 100x100", (10, 50, 0), height=5.0, layer="TEST_MCP_SQUARE", color=2)
-                
+
                 # Thêm Dim
                 client.add_aligned_dimension((0, 0, 0), (100, 0, 0), (50, -15, 0), layer="TEST_MCP_SQUARE")
                 client.add_aligned_dimension((100, 0, 0), (100, 100, 0), (115, 50, 0), layer="TEST_MCP_SQUARE")
-                
+
                 # Zoom
                 client.zoom_extents()
 
@@ -680,7 +681,7 @@ class AutoCADMCPApp:
 
 def main():
     root = tk.Tk()
-    app = AutoCADMCPApp(root)
+    AutoCADMCPApp(root)
     root.mainloop()
 
 if __name__ == "__main__":

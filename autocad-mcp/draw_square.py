@@ -1,4 +1,5 @@
 import sys
+
 from autocad_client import AutoCADClient
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -15,9 +16,9 @@ try:
     # Corner 2: (100, 0)
     # Corner 3: (100, 100)
     # Corner 4: (0, 100)
-    
+
     print("\n--- ĐANG VẼ 4 ĐƯỜNG THẲNG TẠO HÌNH VUÔNG 100x100 ---")
-    
+
     # Cạnh 1: Đáy (0,0) -> (100,0) - Màu Đỏ (1)
     res1 = client.add_line((0, 0, 0), (100, 0, 0), color=1)
     print(f"  + Cạnh 1 (Đáy): (0,0) -> (100,0) | Mã màu 1 (Đỏ) | Handle: {res1.get('handle')}")

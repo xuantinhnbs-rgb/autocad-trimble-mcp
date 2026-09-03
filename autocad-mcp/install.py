@@ -13,10 +13,10 @@ Tùy chọn:
     python install.py --claude-desktop   ghi thêm cấu hình cho Claude Desktop
 """
 
-import os
-import sys
 import json
+import os
 import subprocess
+import sys
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -94,7 +94,7 @@ def main() -> int:
     elif not os.path.exists(req):
         fail("Không thấy requirements.txt")
     else:
-        print(f"  Đang chạy: pip install -r requirements.txt ...")
+        print("  Đang chạy: pip install -r requirements.txt ...")
         proc = subprocess.run([sys.executable, "-m", "pip", "install", "-r", req],
                               capture_output=True, text=True, encoding="utf-8",
                               errors="replace")

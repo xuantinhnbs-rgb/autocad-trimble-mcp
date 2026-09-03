@@ -20,7 +20,7 @@ import sys
 import tempfile
 import threading
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 __all__ = ["TrimbleBridge", "TrimbleError", "get_bridge"]
 

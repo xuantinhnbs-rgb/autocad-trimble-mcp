@@ -14,14 +14,14 @@ Nguyên tắc thiết kế:
 
 from __future__ import annotations
 
-import os
-import math
-import time
-import queue
 import functools
+import math
+import os
+import queue
 import tempfile
 import threading
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+import time
+from typing import Any, Dict, List, Optional, Sequence
 
 import pythoncom
 import win32com.client
@@ -1560,13 +1560,13 @@ class AutoCADClient:
                 continue
             entry: Dict[str, Any] = {"index": i}
             for key, getter in (
-                ("name", lambda l=lyr: str(l.Name)),
-                ("color", lambda l=lyr: int(l.Color)),
-                ("frozen", lambda l=lyr: bool(l.Freeze)),
-                ("locked", lambda l=lyr: bool(l.Lock)),
-                ("on", lambda l=lyr: bool(l.LayerOn)),
-                ("plottable", lambda l=lyr: bool(l.Plottable)),
-                ("linetype", lambda l=lyr: str(l.Linetype)),
+                ("name", lambda ly=lyr: str(ly.Name)),
+                ("color", lambda ly=lyr: int(ly.Color)),
+                ("frozen", lambda ly=lyr: bool(ly.Freeze)),
+                ("locked", lambda ly=lyr: bool(ly.Lock)),
+                ("on", lambda ly=lyr: bool(ly.LayerOn)),
+                ("plottable", lambda ly=lyr: bool(ly.Plottable)),
+                ("linetype", lambda ly=lyr: str(ly.Linetype)),
             ):
                 entry[key] = self._probe(getter)
             entry["is_active"] = (entry.get("name") == active)

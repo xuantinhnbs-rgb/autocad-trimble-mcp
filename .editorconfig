@@ -1,0 +1,25 @@
+# https://editorconfig.org — giữ cách thụt lề và xuống dòng giống nhau trên mọi editor.
+# Phần xuống dòng khi commit do .gitattributes quyết định.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{json,jsonc,yml,yaml}]
+indent_size = 2
+
+[*.md]
+# Markdown dùng hai dấu cách cuối dòng để ngắt dòng mềm.
+trim_trailing_whitespace = false
+
+[*.cs]
+indent_size = 4
+
+# Script Windows phải giữ CRLF mới chạy đúng.
+[*.{bat,cmd,vbs,scr,lsp}]
+end_of_line = crlf

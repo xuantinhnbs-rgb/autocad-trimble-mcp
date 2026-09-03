@@ -5,6 +5,10 @@ __pycache__/
 .venv/
 venv/
 
+# Cache cua cong cu phat trien
+.ruff_cache/
+.pytest_cache/
+
 # Cầu nối .NET của Trimble — sinh tự động ở lần chạy đầu, không commit
 trimble-mcp/trimble_mcp/bridge/TrimbleBridge.exe
 trimble-mcp/trimble_mcp/bridge/TrimbleBridge.exe.config

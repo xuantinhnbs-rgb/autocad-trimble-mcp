@@ -1,0 +1,40 @@
+# Cấu hình công cụ phát triển cho autocad-trimble-mcp.
+#
+# Đây KHÔNG phải file đóng gói: hai server được chạy trực tiếp bằng đường dẫn
+# tới `server.py` / `trimble_server.py` (xem `install.py`), không cài qua pip.
+# File này chỉ giữ cấu hình cho ruff và pytest, để lint/test cho ra cùng một
+# kết quả trên máy lập trình viên và trên CI.
+
+[tool.ruff]
+# Python 3.10 là bản thấp nhất được hỗ trợ (xem README).
+target-version = "py310"
+line-length = 120
+extend-exclude = ["_archive", "ban-ve"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle - lỗi
+    "W",   # pycodestyle - cảnh báo
+    "F",   # pyflakes: biến/import không dùng, tên chưa định nghĩa
+    "I",   # isort: thứ tự import
+    "C4",  # comprehension viết vòng vo
+]
+# Cố tình KHÔNG bật "UP" (pyupgrade). Chữ ký của tool MCP dùng
+# `Optional[...]` / `Dict[...]`, và chính annotation đó sinh ra JSON schema mà
+# AI nhìn thấy. Đổi hàng loạt sang cú pháp PEP 604/585 không mang lại giá trị
+# chức năng nào mà lại có rủi ro thay đổi schema.
+
+[tool.ruff.lint.per-file-ignores]
+# app.py là giao diện Tkinter tùy chọn (không cần cho MCP). Mỗi dòng dựng
+# widget là một lời gọi dài đặc trưng của Tkinter; cắt dòng chỉ làm khó đọc.
+"autocad-mcp/app.py" = ["E501"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+
+[tool.ruff.lint.isort]
+# Hai module này nằm trong repo, không phải thư viện ngoài — để isort xếp chúng
+# vào khối riêng ở cuối thay vì trộn lẫn với third-party.
+known-first-party = ["autocad_client", "trimble_mcp"]
