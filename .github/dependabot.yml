@@ -1,0 +1,21 @@
+# Dependabot mở PR khi có bản mới cho thư viện Python và cho action của CI.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directories:
+      - "/"
+      - "/autocad-mcp"
+      - "/trimble-mcp"
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "deps"
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "ci"

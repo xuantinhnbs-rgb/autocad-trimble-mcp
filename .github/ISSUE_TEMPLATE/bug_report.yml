@@ -1,0 +1,72 @@
+name: Bug report
+description: Something does not work. / Báo lỗi.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Write in English or Vietnamese — both are fine. / Viết tiếng Anh hay tiếng Việt đều được.
+
+  - type: dropdown
+    id: server
+    attributes:
+      label: Which server?
+      options:
+        - autocad-2022
+        - trimble-connect
+        - install.py / configuration
+        - Both / not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you asked the model to do, and what the tool returned.
+      placeholder: |
+        I asked: "draw a 500x300 rectangle at the origin"
+        The tool returned: {"ok": false, "error": "..."}
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+    validations:
+      required: true
+
+  - type: textarea
+    id: install-check
+    attributes:
+      label: Output of `python install.py --check`
+      description: This one command answers most environment questions at once.
+      render: text
+    validations:
+      required: true
+
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      placeholder: "Windows 11 23H2 · Python 3.12.4 · AutoCAD 2024 · Claude Code 2.x"
+    validations:
+      required: true
+
+  - type: textarea
+    id: bridge-log
+    attributes:
+      label: Bridge log (Trimble only)
+      description: Contents of `%TEMP%\trimble_mcp_bridge.err.log`, if the issue is with the Trimble server.
+      render: text
+
+  - type: checkboxes
+    id: preconditions
+    attributes:
+      label: Before submitting
+      options:
+        - label: The application (AutoCAD / Trimble Connect) was running with a drawing or project open.
+          required: true
+        - label: I searched the existing issues.
+          required: true

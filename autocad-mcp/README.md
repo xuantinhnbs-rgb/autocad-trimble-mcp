@@ -194,5 +194,15 @@ autocad-mcp/
 Bốn file `server.py`, `autocad_client.py`, `app.py`, `test_connection.py` **phải nằm cùng một
 thư mục** — chúng `import autocad_client` theo tên trần, tách ra là gãy.
 
-Bản `autocad_mcp/` cũ (dùng `mcp.server.fastmcp`, đã bị bỏ ở `mcp` 2.x) nằm trong
-[`_archive/`](../_archive/) ở gốc dự án, không còn được dùng.
+Bản `autocad_mcp/` cũ (dùng `mcp.server.fastmcp`, đã bị bỏ ở `mcp` 2.x) không còn
+được dùng và không có trong repo — nó chỉ nằm trong thư mục `_archive/` trên máy
+tác giả, đã được `.gitignore` loại ra.
+
+---
+
+## 🧪 Phát triển
+
+Lint, test và quy ước khi thêm tool: xem [CONTRIBUTING.md](../CONTRIBUTING.md) ở
+gốc dự án. Thêm hoặc bỏ tool thì phải sửa cả bảng ở trên **và** `EXPECTED_COUNTS`
+trong [tests/test_tool_contracts.py](../tests/test_tool_contracts.py) — không thì
+test đỏ, đúng như thiết kế.

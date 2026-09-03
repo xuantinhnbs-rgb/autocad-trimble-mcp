@@ -108,13 +108,39 @@ by itself if Trimble Connect is closed and reopened.
 autocad-trimble-mcp/
 ├── install.py            # detects this machine's paths, writes .mcp.json
 ├── .mcp.json.example     # reference shape of the config
+├── pyproject.toml        # ruff + pytest configuration
+├── requirements-dev.txt  # ruff, pytest
 ├── autocad-mcp/          # everything for the AutoCAD server
 ├── trimble-mcp/          # everything for the Trimble server
-└── .github/workflows/    # CI: loads both servers on Windows
+├── tests/                # contract tests — no CAD software required
+└── .github/workflows/    # CI: lint, then tests on Python 3.10-3.13
 ```
 
 Each server folder is **self-contained** — its own README, `requirements.txt` and
 entry point. To share just one of them, zip that folder and send it.
+
+---
+
+## Development
+
+```powershell
+pip install -r requirements-dev.txt
+
+ruff check .                 # lint
+pytest                       # 32 contract tests
+python install.py --check    # loads both servers, prints their tool counts
+```
+
+Those three commands are exactly what CI runs. **None of them needs AutoCAD or
+Trimble Connect installed** — both clients connect lazily, so registering tools
+never touches the applications. The suite checks that the tool counts still
+match the documentation, that every tool has a description and a valid input
+schema, that the `safe()` wrapper never lets an exception escape, and that
+`install.py` and `.mcp.json.example` have not drifted apart.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for conventions and for the checklist
+when adding a tool, and [CHANGELOG.md](CHANGELOG.md) for what changed between
+versions.
 
 ---
 
@@ -133,6 +159,21 @@ and [trimble-mcp/README.md](trimble-mcp/README.md).
 
 ---
 
+## Security
+
+These servers hand a model direct control of desktop software: it can run
+AutoLISP, delete drawing entities, save over files and write exports to paths of
+its choosing. There is no sandbox and no confirmation prompt inside the servers —
+every guard rail lives in your MCP client.
+
+Read [SECURITY.md](SECURITY.md) before connecting them, and report
+vulnerabilities privately rather than in a public issue.
+
+---
+
 ## License
 
 [MIT](LICENSE) — free for any use including commercial, keep the copyright notice.
+
+Contributions are welcome in English or Vietnamese — see
+[CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).

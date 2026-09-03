@@ -1,0 +1,45 @@
+name: Feature request
+description: Suggest a new tool or an improvement. / Đề xuất tool mới hoặc cải tiến.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Write in English or Vietnamese — both are fine. / Viết tiếng Anh hay tiếng Việt đều được.
+
+  - type: dropdown
+    id: server
+    attributes:
+      label: Which server?
+      options:
+        - autocad-2022
+        - trimble-connect
+        - install.py / configuration
+        - Documentation
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: Describe the real drafting or BIM task, not just the API call you have in mind.
+    validations:
+      required: true
+
+  - type: textarea
+    id: today
+    attributes:
+      label: How do you do it today?
+      description: Is there an existing tool that gets close? `run_autolisp` is the universal escape hatch on the AutoCAD side — does it cover the case?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed tool or change
+      placeholder: |
+        Tool name: ...
+        Parameters: ...
+        Returns: ...

@@ -196,3 +196,15 @@ trimble-mcp/
 | `set_camera` không ăn | Đừng gọi ngay sau `zoom_to_objects`: hoạt ảnh zoom còn chạy sẽ ghi đè. |
 | `set_camera` ra vị trí khác | Chuyển sang `Orthogonal` thì Trimble tự tính lại location — đúng thiết kế của ứng dụng. |
 | `get_model_content_path` trả null | Model đồng bộ từ cloud không phơi đường dẫn cục bộ; dùng `get_object_attributes` để đọc dữ liệu. |
+
+---
+
+## 🧪 Phát triển
+
+Lint, test và quy ước khi thêm tool: xem [CONTRIBUTING.md](../CONTRIBUTING.md) ở
+gốc dự án. Thêm hoặc bỏ tool thì phải sửa cả bảng ở trên **và** `EXPECTED_COUNTS`
+trong [tests/test_tool_contracts.py](../tests/test_tool_contracts.py) — không thì
+test đỏ, đúng như thiết kế.
+
+Sửa file `.cs` trong `trimble_mcp/bridge/` thì chỉ cần chạy lại server: nó thấy mã
+nguồn mới hơn `.exe` và tự biên dịch lại. Đừng commit file `.exe`.

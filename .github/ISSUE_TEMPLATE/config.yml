@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/xuantinhnbs-rgb/autocad-trimble-mcp/security/advisories/new
+    about: Report privately, not as a public issue. See SECURITY.md.
+  - name: Setup and troubleshooting
+    url: https://github.com/xuantinhnbs-rgb/autocad-trimble-mcp#troubleshooting
+    about: Run `python install.py --check` first — it reports most configuration problems directly.
