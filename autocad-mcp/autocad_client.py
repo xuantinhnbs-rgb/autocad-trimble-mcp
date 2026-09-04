@@ -187,6 +187,7 @@ class AutoCADClient:
         self._verified_at = 0.0                      # lần cuối ping COM thành công
         self._layer_cache: Dict[str, Any] = {}       # tên layer (lower) -> đối tượng Layer
         self._worker = _ComThread()                  # mọi COM chạy trên luồng này
+        self._connect_lock = threading.RLock()       # reentrant lock for recursive connect() calls
 
     # ==================================================================
     # Kết nối & tự phục hồi
@@ -202,82 +203,84 @@ class AutoCADClient:
 
     def connect(self, launch_if_needed: bool = False) -> None:
         """Bám vào phiên AutoCAD đang chạy; tùy chọn khởi động mới nếu chưa có."""
-        self._coinit()
-        self.app = None
-        self.doc = None
-        errors: List[str] = []
+        with self._connect_lock:
+            self._coinit()
+            self.app = None
+            self.doc = None
+            errors: List[str] = []
 
-        # 1) win32com - bám vào tiến trình AutoCAD đang chạy
-        for prog_id in PROG_IDS:
-            try:
-                self.app = win32com.client.GetActiveObject(prog_id)
-                break
-            except Exception as exc:
-                errors.append(f"{prog_id}: {exc}")
-
-        # 2) comtypes - một số bản build chỉ trả về qua comtypes
-        if self.app is None:
-            try:
-                import comtypes.client
-                for prog_id in PROG_IDS:
-                    try:
-                        self.app = comtypes.client.GetActiveObject(prog_id)
-                        break
-                    except Exception as exc:
-                        errors.append(f"comtypes {prog_id}: {exc}")
-            except Exception:
-                pass
-
-        # 3) Khởi động AutoCAD mới (chỉ khi được phép - rất chậm)
-        if self.app is None and launch_if_needed:
+            # 1) win32com - bám vào tiến trình AutoCAD đang chạy
             for prog_id in PROG_IDS:
                 try:
-                    self.app = win32com.client.Dispatch(prog_id)
+                    self.app = win32com.client.GetActiveObject(prog_id)
                     break
                 except Exception as exc:
-                    errors.append(f"Dispatch {prog_id}: {exc}")
+                    errors.append(f"{prog_id}: {exc}")
 
-        if self.app is None:
-            raise AcadError(
-                "Không kết nối được tới AutoCAD 2022. Hãy mở AutoCAD 2022 và mở "
-                "ít nhất một bản vẽ, sau đó thử lại. Chi tiết: " + " | ".join(errors[:3])
-            )
+            # 2) comtypes - một số bản build chỉ trả về qua comtypes
+            if self.app is None:
+                try:
+                    import comtypes.client
+                    for prog_id in PROG_IDS:
+                        try:
+                            self.app = comtypes.client.GetActiveObject(prog_id)
+                            break
+                        except Exception as exc:
+                            errors.append(f"comtypes {prog_id}: {exc}")
+                except Exception:
+                    pass
 
-        try:
-            self.app.Visible = True
-        except Exception:
-            pass  # một số phiên bản khóa thuộc tính này, không quan trọng
+            # 3) Khởi động AutoCAD mới (chỉ khi được phép - rất chậm)
+            if self.app is None and launch_if_needed:
+                for prog_id in PROG_IDS:
+                    try:
+                        self.app = win32com.client.Dispatch(prog_id)
+                        break
+                    except Exception as exc:
+                        errors.append(f"Dispatch {prog_id}: {exc}")
+
+            if self.app is None:
+                raise AcadError(
+                    "Không kết nối được tới AutoCAD 2022. Hãy mở AutoCAD 2022 và mở "
+                    "ít nhất một bản vẽ, sau đó thử lại. Chi tiết: " + " | ".join(errors[:3])
+                )
+
+            try:
+                self.app.Visible = True
+            except Exception:
+                pass  # một số phiên bản khóa thuộc tính này, không quan trọng
 
     def ensure_connected(self) -> None:
         """Bảo đảm self.app / self.doc còn sống. Gọi trước mọi thao tác COM."""
-        self._coinit()
-        # Trong một loạt thao tác liên tiếp (batch_draw) không cần ping lại COM mỗi
-        # lần - _guard vẫn tự phục hồi nếu con trỏ chết giữa chừng.
-        if (self.app is not None and self.doc is not None
-                and time.time() - self._verified_at < CONNECTION_TTL):
-            return
-        last: Optional[BaseException] = None
-        for attempt in range(MAX_ATTEMPTS):
-            try:
-                if self.app is None:
-                    self.connect()
-                count = self.app.Documents.Count      # ping COM, phát hiện con trỏ chết
-                if count == 0:
-                    self.doc = self.app.Documents.Add()
-                else:
-                    self.doc = self.app.ActiveDocument
-                # bản vẽ hiện hành có thể đã đổi giữa hai lần ping -> bỏ cache layer
-                self._layer_cache.clear()
-                self._verified_at = time.time()
+        with self._connect_lock:
+            self._coinit()
+            # Trong một loạt thao tác liên tiếp (batch_draw) không cần ping lại COM mỗi
+            # lần - _guard vẫn tự phục hồi nếu con trỏ chết giữa chừng.
+            if (self.app is not None and self.doc is not None
+                    and time.time() - self._verified_at < CONNECTION_TTL):
                 return
-            except Exception as exc:
-                last = exc
-                hr = _hresult(exc)
-                if hr in _BUSY_HRESULTS:
-                    time.sleep(RETRY_DELAY * (attempt + 1))
-                    continue
-                # con trỏ chết hoặc lỗi lạ -> dựng lại kết nối từ đầu
-                self._reset_connection()
+            last: Optional[BaseException] = None
+            for attempt in range(MAX_ATTEMPTS):
+                try:
+                    if self.app is None:
+                        self.connect()
+                    count = self.app.Documents.Count      # ping COM, phát hiện con trỏ chết
+                    if count == 0:
+                        self.doc = self.app.Documents.Add()
+                    else:
+                        self.doc = self.app.ActiveDocument
+                    # bản vẽ hiện hành có thể đã đổi giữa hai lần ping -> bỏ cache layer
+                    self._layer_cache.clear()
+                    self._verified_at = time.time()
+                    return
+                except Exception as exc:
+                    last = exc
+                    hr = _hresult(exc)
+                    if hr in _BUSY_HRESULTS:
+                        time.sleep(RETRY_DELAY * (attempt + 1))
+                        continue
+                    # con trỏ chết hoặc lỗi lạ -> dựng lại kết nối từ đầu
+                    self._reset_connection()
                 if attempt < MAX_ATTEMPTS - 1:
                     time.sleep(RETRY_DELAY)
                     continue

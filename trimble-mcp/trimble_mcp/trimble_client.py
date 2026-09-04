@@ -12,6 +12,7 @@ TrimbleBridge.exe duoc bien dich tu dong bang csc.exe cua .NET Framework
 
 from __future__ import annotations
 
+import atexit
 import json
 import os
 import queue
@@ -308,11 +309,24 @@ _bridge: Optional[TrimbleBridge] = None
 _bridge_lock = threading.Lock()
 
 
+def _cleanup_bridge() -> None:
+    """Cleanup handler to gracefully close Trimble bridge on exit."""
+    global _bridge
+    with _bridge_lock:
+        if _bridge is not None:
+            try:
+                _bridge.close()
+            except Exception:
+                pass
+            _bridge = None
+
+
 def get_bridge() -> TrimbleBridge:
     global _bridge
     with _bridge_lock:
         if _bridge is None:
             _bridge = TrimbleBridge()
+            atexit.register(_cleanup_bridge)
         return _bridge
 
 

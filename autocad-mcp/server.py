@@ -11,10 +11,10 @@ thay vì một vệt lỗi COM thô.
 """
 
 import functools
-import inspect
 from typing import Any, Dict, List, Optional
 
 from mcp.server.mcpserver import MCPServer
+from path_utils import _validate_dwg_path
 
 from autocad_client import AcadError, AutoCADClient
 
@@ -52,9 +52,6 @@ def safe(fn):
             return {"ok": True, "count": len(result), "items": result}
         return {"ok": True, "result": result}
 
-    wrapper.__annotations__ = dict(getattr(fn, "__annotations__", {}))
-    wrapper.__annotations__["return"] = dict
-    wrapper.__signature__ = inspect.signature(fn).replace(return_annotation=dict)
     return wrapper
 
 
@@ -113,7 +110,8 @@ def open_dwg_document(file_path: str) -> dict:
 
     :param file_path: Đường dẫn tuyệt đối hoặc tương đối tới file.
     """
-    return {"message": acad.open_document(file_path)}
+    validated_path = _validate_dwg_path(file_path)
+    return {"message": acad.open_document(validated_path)}
 
 
 @mcp.tool()
@@ -123,6 +121,8 @@ def save_document(file_path: Optional[str] = None) -> dict:
 
     :param file_path: Đường dẫn lưu mới. Để trống sẽ lưu đè - bản vẽ chưa từng lưu sẽ báo lỗi rõ ràng.
     """
+    if file_path is not None:
+        file_path = _validate_dwg_path(file_path)
     return {"message": acad.save_document(file_path)}
 
 
@@ -134,6 +134,8 @@ def close_document(save_changes: bool = True, file_path: Optional[str] = None) -
     :param save_changes: True = lưu trước khi đóng, False = bỏ thay đổi.
     :param file_path: Nếu có, lưu sang đường dẫn này rồi mới đóng.
     """
+    if file_path is not None:
+        file_path = _validate_dwg_path(file_path)
     return {"message": acad.close_document(save_changes, file_path)}
 
 

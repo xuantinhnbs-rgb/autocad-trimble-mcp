@@ -14,7 +14,6 @@ Chạy bằng:  python -m trimble_mcp.server
 """
 
 import functools
-import inspect
 from typing import Any, List, Optional
 
 from mcp.server.mcpserver import MCPServer
@@ -52,10 +51,8 @@ def safe(fn):
             return {"ok": True, "count": len(result), "items": result}
         return {"ok": True, "result": result}
 
-    wrapper.__annotations__ = dict(getattr(fn, "__annotations__", {}))
-    wrapper.__annotations__["return"] = dict
-    wrapper.__signature__ = inspect.signature(fn).replace(return_annotation=dict)
     return wrapper
+
 
 
 def call(cmd: str, **args: Any) -> Any:
