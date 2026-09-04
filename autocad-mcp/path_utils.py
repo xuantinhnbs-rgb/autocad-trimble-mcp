@@ -81,3 +81,90 @@ def _check_suspicious_patterns(path: str) -> None:
     # Check for suspicious environment variables in path
     if "$" in path or "%" in path:
         raise ValueError("Environment variable references in paths are not allowed")
+
+
+# ============================================================================
+# Array/Coordinate Validation
+# ============================================================================
+
+
+def validate_2d_coordinates(coordinates, name: str = "coordinates") -> None:
+    """
+    Validate 2D coordinates array [x1,y1, x2,y2, ...].
+
+    :param coordinates: Array of flat coordinates
+    :param name: Parameter name for error messages
+    :raises ValueError: If coordinates are invalid
+    """
+    if not isinstance(coordinates, (list, tuple)):
+        raise ValueError(f"{name} must be a list or tuple, got {type(coordinates).__name__}")
+    if len(coordinates) < 4 or len(coordinates) % 2 != 0:
+        raise ValueError(
+            f"{name} must have even length (pairs x,y), got {len(coordinates)} numbers. "
+            f"Minimum 2 points (4 numbers) required."
+        )
+    try:
+        [float(v) for v in coordinates]
+    except (ValueError, TypeError) as exc:
+        raise ValueError(f"{name} contains non-numeric value: {exc}")
+
+
+def validate_3d_coordinates(coordinates, name: str = "coordinates") -> None:
+    """
+    Validate 3D coordinates array [x1,y1,z1, x2,y2,z2, ...].
+
+    :param coordinates: Array of flat coordinates
+    :param name: Parameter name for error messages
+    :raises ValueError: If coordinates are invalid
+    """
+    if not isinstance(coordinates, (list, tuple)):
+        raise ValueError(f"{name} must be a list or tuple, got {type(coordinates).__name__}")
+    if len(coordinates) < 3 or len(coordinates) % 3 != 0:
+        raise ValueError(
+            f"{name} must have length divisible by 3 (triplets x,y,z), got {len(coordinates)} numbers. "
+            f"Minimum 1 point (3 numbers) required."
+        )
+    try:
+        [float(v) for v in coordinates]
+    except (ValueError, TypeError) as exc:
+        raise ValueError(f"{name} contains non-numeric value: {exc}")
+
+
+def validate_flat_coordinates(coordinates, expected_pairs: int, name: str = "coordinates") -> None:
+    """
+    Validate flat coordinates with specific expected number of pairs.
+
+    :param coordinates: Array of flat coordinates
+    :param expected_pairs: Expected number of x,y pairs
+    :param name: Parameter name for error messages
+    :raises ValueError: If coordinates are invalid
+    """
+    if not isinstance(coordinates, (list, tuple)):
+        raise ValueError(f"{name} must be a list or tuple, got {type(coordinates).__name__}")
+    expected_length = expected_pairs * 2
+    if len(coordinates) != expected_length:
+        raise ValueError(
+            f"{name} must have exactly {expected_length} numbers ({expected_pairs} pairs), "
+            f"got {len(coordinates)} numbers."
+        )
+    try:
+        [float(v) for v in coordinates]
+    except (ValueError, TypeError) as exc:
+        raise ValueError(f"{name} contains non-numeric value: {exc}")
+
+
+def validate_handles(handles, name: str = "handles") -> None:
+    """
+    Validate a list of entity handles.
+
+    :param handles: List of handle strings
+    :param name: Parameter name for error messages
+    :raises ValueError: If handles are invalid
+    """
+    if not isinstance(handles, (list, tuple)):
+        raise ValueError(f"{name} must be a list or tuple, got {type(handles).__name__}")
+    if len(handles) == 0:
+        raise ValueError(f"{name} cannot be empty")
+    for i, handle in enumerate(handles):
+        if not isinstance(handle, str) or not handle:
+            raise ValueError(f"{name}[{i}] must be a non-empty string, got {repr(handle)}")

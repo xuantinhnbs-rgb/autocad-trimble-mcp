@@ -14,7 +14,12 @@ import functools
 from typing import Any, Dict, List, Optional
 
 from mcp.server.mcpserver import MCPServer
-from path_utils import _validate_dwg_path
+from path_utils import (
+    _validate_dwg_path,
+    validate_2d_coordinates,
+    validate_3d_coordinates,
+    validate_handles,
+)
 
 from autocad_client import AcadError, AutoCADClient
 
@@ -297,6 +302,7 @@ def draw_polyline_2d(
     :param elevation: Cao độ Z của mặt phẳng chứa đa tuyến
     :param space: 'model' hoặc 'paper'
     """
+    validate_2d_coordinates(coordinates, "coordinates")
     return acad.add_polyline_2d(coordinates, closed, layer, color_index,
                                 linetype, width, elevation, space)
 
@@ -316,6 +322,7 @@ def draw_polyline_3d(
     :param layer: Tên layer
     :param color_index: Màu 0-256
     """
+    validate_3d_coordinates(coordinates, "coordinates")
     return acad.add_polyline_3d(coordinates, closed, layer, color_index)
 
 
@@ -363,6 +370,9 @@ def draw_spline(
     :param layer: Tên layer
     :param color_index: Màu 0-256
     """
+    validate_3d_coordinates(coordinates, "coordinates")
+    if len(coordinates) < 6:
+        raise ValueError("spline: need at least 2 points (6 numbers), got {len(coordinates)}")
     return acad.add_spline(coordinates, None, None, layer, color_index)
 
 
@@ -390,6 +400,7 @@ def draw_hatch(
     :param color_index: Màu 0-256
     :param associative: Hatch liên kết với biên, tự cập nhật khi biên thay đổi
     """
+    validate_handles(boundary_handles, "boundary_handles")
     return acad.add_hatch(boundary_handles, pattern_name, scale, angle_deg,
                           layer, color_index, associative)
 
@@ -546,12 +557,15 @@ def add_dimension(
     :param leader_length: Chiều dài đường dẫn cho radial/diametric
     :param dim_style: Tên dimension style có sẵn
     """
-    flat = [float(v) for v in (points or [])]
-    if len(flat) < 4 or len(flat) % 2 != 0:
+    validate_2d_coordinates(points, "points")
+    expected_points = {"aligned": 3, "linear": 3, "horizontal": 3, "vertical": 3,
+                       "angular": 4, "radial": 2, "diametric": 2}.get(kind)
+    if expected_points and len(points) != expected_points * 2:
         raise ValueError(
-            f"'points' phải là mảng phẳng x,y với ít nhất 2 điểm (4 số); nhận được {len(flat)} số."
+            f"dimension kind '{kind}' expects {expected_points} points ({expected_points * 2} numbers), "
+            f"got {len(points)} numbers."
         )
-    pts = [(flat[i], flat[i + 1], 0.0) for i in range(0, len(flat), 2)]
+    pts = [(points[i], points[i + 1], 0.0) for i in range(0, len(points), 2)]
     return acad.add_dimension(kind, pts, layer, color_index, text_override,
                               rotation_deg, leader_length, dim_style)
 
@@ -573,6 +587,7 @@ def add_leader(
     :param layer: Tên layer
     :param color_index: Màu 0-256
     """
+    validate_3d_coordinates(coordinates, "coordinates")
     return acad.add_leader(coordinates, annotation_text, layer, color_index, text_height)
 
 
@@ -638,6 +653,7 @@ def modify_entities(
     :param fill_angle_deg: Góc quét của mảng tròn (mặc định 360)
     :param delete_source: Xóa đối tượng gốc sau mirror/explode
     """
+    validate_handles(handles, "handles")
     kw = {k: v for k, v in {
         "from_point": from_point, "to_point": to_point, "base_point": base_point,
         "center_point": center_point, "point1": point1, "point2": point2,
