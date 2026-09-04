@@ -43,7 +43,9 @@ and isolate objects; save and activate views; drive the camera; reposition model
 
 - **Windows.** Both servers talk to desktop applications through Windows-only APIs.
 - **Python 3.10 or newer.**
-- **AutoCAD 2022 or newer** for the AutoCAD server (needs `pywin32`).
+- **AutoCAD 2022 or newer** for the AutoCAD server (needs `pywin32`). Tested on 2022;
+  newer versions connect through a generic COM ProgID fallback — see
+  [autocad-mcp/README.md](autocad-mcp/README.md#-tương-thích-phiên-bản) for how that works.
 - **Trimble Connect for Desktop** plus **.NET Framework 4.x** for the Trimble server.
   .NET Framework ships with Windows 10 and 11 — no Visual Studio or .NET SDK needed.
 

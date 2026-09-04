@@ -1,6 +1,32 @@
 # 🚀 AutoCAD 2022 MCP Server (Model Context Protocol)
 
-MCP Server cho phép các mô hình AI (Claude Code, Claude Desktop, Cursor, Cline, Antigravity, v.v.) kết nối và điều khiển trực tiếp phần mềm **AutoCAD 2022** trên máy Windows của bạn.
+MCP Server cho phép các mô hình AI (Claude Code, Claude Desktop, Cursor, Cline, Antigravity, v.v.) kết nối và điều khiển trực tiếp phần mềm **AutoCAD** trên máy Windows của bạn. Được phát triển và kiểm thử trên **AutoCAD 2022** — xem mục [Tương thích phiên bản](#-tương-thích-phiên-bản) bên dưới nếu bạn dùng bản khác.
+
+---
+
+## 🧩 Tương thích phiên bản
+
+[`autocad_client.py`](autocad_client.py) bám vào AutoCAD đang chạy qua ba ProgID COM, thử lần lượt:
+
+1. `AutoCAD.Application.24.1`
+2. `AutoCAD.Application.24`
+3. `AutoCAD.Application`
+
+Hai ProgID đầu ứng đúng với số phiên bản COM nội bộ của **AutoCAD 2022**. ProgID thứ ba
+là ProgID **chung**, không gắn số phiên bản — Windows sẽ trỏ nó tới bất kỳ bản AutoCAD
+nào đang đăng ký làm COM server mặc định trên máy đó.
+
+Vì vậy:
+
+- **AutoCAD 2022** → luôn kết nối được, đã kiểm thử kỹ.
+- **Bản khác (2023 trở lên, bản Full — không phải LT vì LT không có COM API)** →
+  nhiều khả năng vẫn kết nối được nhờ ProgID chung ở bước 3, do API ActiveX phần lớn
+  tương thích ngược giữa các phiên bản. Tuy nhiên **chưa được kiểm chứng đầy đủ**: một
+  vài tool có thể lệch tham số hoặc tên thuộc tính nếu Autodesk đổi API giữa các bản.
+
+Nếu bạn dùng bản khác 2022 và gặp lỗi `DISP_E_UNKNOWNNAME` (AutoCAD không hỗ trợ
+thuộc tính/phương thức này) ở một tool cụ thể, đó là dấu hiệu API đã lệch — hãy báo
+lại qua issue kèm phiên bản AutoCAD của bạn.
 
 ---
 
@@ -129,7 +155,7 @@ pip install -r requirements.txt
 ```
 
 ### 2. Kiểm tra kết nối
-Mở AutoCAD 2022 với ít nhất một bản vẽ, sau đó:
+Mở AutoCAD (2022 hoặc bản mới hơn — xem [Tương thích phiên bản](#-tương-thích-phiên-bản)) với ít nhất một bản vẽ, sau đó:
 ```powershell
 python test_connection.py
 ```

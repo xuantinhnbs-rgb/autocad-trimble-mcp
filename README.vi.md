@@ -7,7 +7,7 @@ Hai MCP server độc lập, cho phép AI (Claude Code, Claude Desktop, Cursor, 
 
 | Server | Điều khiển | Số tool | Tài liệu |
 |---|---|---|---|
-| `autocad-2022` | AutoCAD 2022 qua COM | 49 | [autocad-mcp/README.md](autocad-mcp/README.md) |
+| `autocad-2022` | AutoCAD 2022+ qua COM | 49 | [autocad-mcp/README.md](autocad-mcp/README.md) |
 | `trimble-connect` | Trimble Connect for Desktop qua .NET API | 34 | [trimble-mcp/README.md](trimble-mcp/README.md) |
 
 Cả hai đều dùng chung một hợp đồng trả về: **mọi tool đều trả JSON có khóa `ok`**
@@ -44,7 +44,9 @@ chỉ cần nén đúng thư mục đó gửi đi.
 ## 🚀 Cài đặt
 
 **Yêu cầu:** Windows, Python 3.10 trở lên, và phần mềm tương ứng đang cài trên máy
-(AutoCAD 2022+ / Trimble Connect for Desktop).
+(AutoCAD 2022+ / Trimble Connect for Desktop). Đã kiểm thử kỹ trên AutoCAD 2022; bản
+mới hơn kết nối qua ProgID COM chung — xem
+[Tương thích phiên bản](autocad-mcp/README.md#-tương-thích-phiên-bản).
 
 ```powershell
 git clone https://github.com/xuantinhnbs-rgb/autocad-trimble-mcp.git
