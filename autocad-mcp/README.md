@@ -2,6 +2,12 @@
 
 MCP Server cho phép các mô hình AI (Claude Code, Claude Desktop, Cursor, Cline, Antigravity, v.v.) kết nối và điều khiển trực tiếp phần mềm **AutoCAD** trên máy Windows của bạn. Được phát triển và kiểm thử trên **AutoCAD 2022** — xem mục [Tương thích phiên bản](#-tương-thích-phiên-bản) bên dưới nếu bạn dùng bản khác.
 
+![Mặt đứng trụ cầu do MCP server này vẽ](../docs/images/autocad-pier-elevation.png)
+
+*Bản vẽ trên được dựng hoàn toàn bằng 24 lời gọi tool vào một bản vẽ trống: 5 layer,
+13 đối tượng hình học trong một lần `batch_draw` (0,194 s), 3 hatch, 4 kích thước,
+3 ghi chú dẫn. Chuỗi lệnh đầy đủ nằm ở [docs/images/README.md](../docs/images/README.md).*
+
 ---
 
 ## 🧩 Tương thích phiên bản

@@ -1,7 +1,9 @@
 """
-AutoCAD 2022 COM Automation Client
-==================================
-Lớp giao tiếp COM tới AutoCAD 2022 (AutoCAD.Application.24.1).
+AutoCAD COM Automation Client
+==============================
+Lớp giao tiếp COM tới AutoCAD. Được phát triển và kiểm thử trên AutoCAD 2022
+(ProgID AutoCAD.Application.24.1); bản mới hơn kết nối được qua ProgID chung
+AutoCAD.Application (xem PROG_IDS bên dưới), nhưng chưa được kiểm chứng đầy đủ.
 
 Nguyên tắc thiết kế:
   * Mọi lỗi COM thô được dịch sang AcadError kèm thông điệp tiếng Việt rõ nghĩa.
@@ -149,7 +151,7 @@ def _explain(exc: BaseException) -> str:
                 "Hãy nhấn ESC trong AutoCAD rồi thử lại.")
     if hr in _DEAD_HRESULTS:
         return ("Mất kết nối tới AutoCAD (AutoCAD đã bị đóng hoặc khởi động lại). "
-                "Hãy mở lại AutoCAD 2022 với ít nhất một bản vẽ.")
+                "Hãy mở lại AutoCAD với ít nhất một bản vẽ.")
     if hr == -2147352571:  # 0x80020005 DISP_E_TYPEMISMATCH
         return f"Sai kiểu dữ liệu truyền vào AutoCAD: {desc}"
     if hr == -2147352567:  # 0x80020009 DISP_E_EXCEPTION
@@ -241,7 +243,7 @@ class AutoCADClient:
 
             if self.app is None:
                 raise AcadError(
-                    "Không kết nối được tới AutoCAD 2022. Hãy mở AutoCAD 2022 và mở "
+                    "Không kết nối được tới AutoCAD. Hãy mở AutoCAD (2022 trở lên) và mở "
                     "ít nhất một bản vẽ, sau đó thử lại. Chi tiết: " + " | ".join(errors[:3])
                 )
 
@@ -551,9 +553,22 @@ class AutoCADClient:
             except Exception as exc:
                 _reraise_if_transient(exc)
                 continue
+        # Handle chi duy nhat TRONG MOT ban ve. Server bam theo ban ve hien hanh, nen
+        # nguoi dung chuyen tab giua hai lenh la handle cu tro thanh vo nghia - neu
+        # thong diep khong noi ro da tim o dau thi loi nay rat de bi doc nham thanh
+        # "doi tuong da bi xoa".
         raise ValueError(
-            f"Không tìm thấy đối tượng có handle '{handle}' trong bản vẽ hiện hành."
+            f"Không tìm thấy đối tượng có handle '{handle}' trong bản vẽ "
+            f"'{self._doc_name()}'. Nếu bạn vừa chuyển sang bản vẽ khác, "
+            f"handle của bản vẽ cũ không còn dùng được."
         )
+
+    def _doc_name(self) -> str:
+        """Tên bản vẽ hiện hành, dùng trong thông điệp lỗi - không bao giờ ném."""
+        try:
+            return str(self.doc.Name)
+        except Exception:
+            return "hiện hành"
 
     def _space(self, space: str = "model"):
         """Trả về ModelSpace hoặc PaperSpace theo tên."""
@@ -879,7 +894,11 @@ class AutoCADClient:
         objs = [self._by_handle(h) for h in handles]
         # 0 = acHatchPatternTypePreDefined
         hatch = self.doc.ModelSpace.AddHatch(0, str(pattern_name).upper(), bool(associative))
-        hatch.AppendOuterLoop(self.objects(objs))
+        # MOT loi goi AppendOuterLoop = MOT vong khep kin. Don ca N bien roi rac vao
+        # cung mot mang thi AutoCAD hieu la N doan cong ghep thanh mot vong duy nhat,
+        # khong khep duoc nen tra ve "Invalid input". Moi bien phai la mot vong rieng.
+        for obj in objs:
+            hatch.AppendOuterLoop(self.objects([obj]))
         warn = self._apply_props(hatch, layer, color)
         if str(pattern_name).upper() != "SOLID":
             try:
@@ -1001,6 +1020,43 @@ class AutoCADClient:
         return self._result(ent, "MText", warn, text=content,
                             insertion=[float(x), float(y), float(z)], width=w)
 
+    # Bien he thong DIM* -> thuoc tinh tuong ung tren doi tuong Dimension.
+    # Ten thuoc tinh ActiveX khong trung ten bien, nen phai anh xa tay.
+    _DIM_VAR_MAP = (
+        ("DIMSCALE", "ScaleFactor"),
+        ("DIMTXT", "TextHeight"),
+        ("DIMASZ", "ArrowheadSize"),
+        ("DIMEXE", "ExtensionLineExtend"),
+        ("DIMEXO", "ExtensionLineOffset"),
+        ("DIMGAP", "TextGap"),
+        ("DIMDEC", "PrimaryUnitsPrecision"),
+    )
+
+    def _sync_dim_vars(self, ent) -> List[str]:
+        """Ep cac bien DIM* cua ban ve xuong doi tuong kich thuoc vua tao.
+
+        AddDim* cua ActiveX KHONG doc cac bien he thong DIM*: no lay thuoc tinh tu
+        dimension style dang hien hanh. Nguoi dung goi set_system_variable('DIMSCALE', 80)
+        roi ve kich thuoc thi bien doi thanh 80 that, nhung doi tuong sinh ra van giu
+        ScaleFactor = 1 cua style. Voi ban ve don vi milimet dung template he inch
+        (DIMTXT = 0.18), chu so cao 0,18 mm tren hinh dai vai nghin mm - nhin nhu kich
+        thuoc bi mat chu, khong co thong bao loi nao.
+
+        Dong bo o day de bien he thong tro thanh dieu khien that su, dung nhu tai lieu
+        cua tool set_system_variable ngu y.
+        """
+        warn: List[str] = []
+        for var, prop in self._DIM_VAR_MAP:
+            try:
+                value = self.doc.GetVariable(var)
+            except Exception:
+                continue                      # ban AutoCAD nay khong co bien do
+            try:
+                setattr(ent, prop, int(value) if prop.endswith("Precision") else float(value))
+            except Exception as exc:
+                warn.append(f"Không áp được {var} lên kích thước ({prop}): {exc}")
+        return warn
+
     @_guard
     def add_dimension(self, kind, points, layer=None, color=None,
                       text_override=None, rotation_deg=0.0,
@@ -1039,6 +1095,7 @@ class AutoCADClient:
                 f"- nhận được '{kind}'."
             )
         warn = self._apply_props(ent, layer, color)
+        warn += self._sync_dim_vars(ent)
         if text_override:
             try:
                 ent.TextOverride = str(text_override)
@@ -1071,7 +1128,18 @@ class AutoCADClient:
                 annotation.Height = self._num(text_height, "text_height")
             except Exception as exc:
                 warn.append(f"Không gán được chiều cao chú thích: {exc}")
-        ent = ms.AddLeader(self.doubles(nums), annotation, 0)  # 0 = acLineWithArrow
+        try:
+            ent = ms.AddLeader(self.doubles(nums), annotation, 0)  # 0 = acLineWithArrow
+        except Exception:
+            # Chú thích được tạo TRƯỚC đường dẫn. AddLeader hỏng (toa độ thiếu chiều Z,
+            # dưới hai điểm...) thì MText đã nằm trong bản vẽ và không còn ai trỏ tới nó:
+            # người dùng thấy một dòng chữ trôi nổi giữa bản vẽ mà không hiểu từ đâu ra.
+            if annotation is not None:
+                try:
+                    annotation.Delete()
+                except Exception:
+                    pass
+            raise
         warn += self._apply_props(ent, layer, color)
         if annotation is not None:
             warn += self._apply_props(annotation, layer, color)
@@ -1262,6 +1330,12 @@ class AutoCADClient:
                 try:
                     targets.append((str(h), self._by_handle(h)))
                 except Exception as exc:
+                    # Loi tam thoi (AutoCAD ban, con tro dispatch chet) phai bay len
+                    # _guard de no dung lai ket noi roi chay lai ca lenh; nuot vao day
+                    # thi ca lo bi bao "khong tim thay handle" trong khi doi tuong van
+                    # nam nguyen trong ban ve. Vong lap nay chay TRUOC moi thao tac
+                    # xoa, nen chay lai tu dau hoan toan an toan.
+                    _reraise_if_transient(exc)
                     failures.append({"handle": str(h), "error": _explain(exc)})
         elif delete_all or layer or entity_type:
             space_obj = self._space(space)

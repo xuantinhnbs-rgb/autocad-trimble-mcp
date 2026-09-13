@@ -29,5 +29,44 @@ mcp_config.json
 # Code cu va file rong - giu tren dia lam tu lieu, khong day len repo
 _archive/
 
+# Navisworks MCP la repo GIT RIENG, chi nam long trong thu muc nay cho tien lam viec:
+#   https://github.com/xuantinhnbs-rgb/navisworks-mcp
+# Khong ignore thi "git add ." se them no vao day duoi dang gitlink - mot con tro
+# commit rong, clone ve khong co ma nguon, va sua o day cung khong theo doi duoc.
+navisworks-mcp/
+
+# Hai MCP server khac dang lam do, khong thuoc repo nay. De o day cho tien doi
+# chieu ma nguon, nhung khong dua vao git: "git add ." se keo ca hai vao repo,
+# va "ruff check ." o may se bao loi cua chung trong khi CI (chi thay repo nay)
+# lai xanh - hai ket qua lech nhau la nguon nhieu vo ich.
+infraworks-mcp/
+midas-mcp/
+
 # Cau hinh editor rieng cua tung nguoi
 .vscode/
+
+# ---------------------------------------------------------------------------
+# File cong viec nam lan o goc repo
+# ---------------------------------------------------------------------------
+# Thu muc nay vua la repo vua la cho lam viec hang ngay, nen bang khoi luong,
+# ban ve va anh render cua du an that cu troi dat o goc. Repo lai la repo CONG
+# KHAI: chi mot lan "git add ." la chung len GitHub, va da len thi nam vinh vien
+# trong lich su - xoa file o commit sau khong go duoc.
+#
+# Chan theo dinh dang, khong theo ten tung file, vi file moi se lien tuc xuat
+# hien. Can commit mot file thuoc cac dang nay thi them ngoai le "!<ten file>"
+# ben duoi, tuc la phai co mot hanh dong co y.
+*.xlsx
+*.xls
+*.pdf
+*.jpg
+*.jpeg
+*.dwg
+*.dxf
+*.ifc
+*.rvt
+~$*
+03_Views_Images/
+
+# Anh cua repo thi VAN phai vao git - do la vat chung trong tai lieu.
+!docs/images/*.png

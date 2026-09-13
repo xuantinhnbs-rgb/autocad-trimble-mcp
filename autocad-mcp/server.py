@@ -1,7 +1,9 @@
 """
-AutoCAD 2022 MCP Server
-=======================
-Giao tiếp chuẩn Model Context Protocol (MCP) để AI điều khiển trực tiếp AutoCAD 2022.
+AutoCAD MCP Server
+===================
+Giao tiếp chuẩn Model Context Protocol (MCP) để AI điều khiển trực tiếp AutoCAD.
+Kiểm thử trên AutoCAD 2022; bản mới hơn kết nối được qua ProgID COM chung
+(xem PROG_IDS trong autocad_client.py).
 
 Hợp đồng trả về: MỌI tool đều trả về một object JSON có khóa "ok".
   * Thành công -> {"ok": true, ...dữ liệu...}
@@ -67,7 +69,7 @@ def safe(fn):
 @mcp.tool()
 @safe
 def check_autocad_connection() -> dict:
-    """Kiểm tra kết nối tới AutoCAD 2022: phiên bản, số bản vẽ đang mở, có đang kẹt lệnh không.
+    """Kiểm tra kết nối tới AutoCAD: phiên bản, số bản vẽ đang mở, có đang kẹt lệnh không.
 
     Nên gọi tool này đầu tiên khi nghi ngờ AutoCAD chưa mở hoặc đang treo.
     """
@@ -111,7 +113,7 @@ def create_new_document(template_path: Optional[str] = None) -> dict:
 @mcp.tool()
 @safe
 def open_dwg_document(file_path: str) -> dict:
-    """Mở một file .dwg / .dxf / .dwt từ ổ đĩa vào AutoCAD 2022.
+    """Mở một file .dwg / .dxf / .dwt từ ổ đĩa vào AutoCAD.
 
     :param file_path: Đường dẫn tuyệt đối hoặc tương đối tới file.
     """

@@ -39,6 +39,36 @@ and isolate objects; save and activate views; drive the camera; reposition model
 
 ---
 
+## What it looks like
+
+### A drawing produced entirely through the AutoCAD server
+
+![Bridge pier elevation drawn through the autocad-2022 MCP server](docs/images/autocad-pier-elevation.png)
+
+Five layers, concrete hatching, four dimensions and three leaders — drawn into an
+empty document by 24 tool calls, with all thirteen geometry entities created in a
+single `batch_draw` that took 0.194 s. No project file was opened.
+
+### 7,824 IFC objects coloured by type through the Trimble server
+
+![Bridge model coloured by IFC type through the trimble-connect MCP server](docs/images/trimble-ifc-colour-by-type.png)
+
+`find_objects(by="type", …)` then `set_color` over `IFCCOLUMN` (1,801, orange),
+`IFCBEAM` (3,857, blue), `IFCSLAB` (1,896, green) and `IFCPLATE` (270, yellow).
+Everything still in its original colour is a type outside that list.
+
+### Both servers verified without either application installed
+
+![install.py --check, ruff and pytest all passing](docs/images/install-check-and-tests.png)
+
+`install.py --check` loads both servers and counts their tools, `ruff` is clean and
+the contract tests pass — on a machine with AutoCAD and Trimble Connect closed.
+
+[docs/images/README.md](docs/images/README.md) records the exact command sequence
+behind each image, so you can reproduce them rather than take them on trust.
+
+---
+
 ## Requirements
 
 - **Windows.** Both servers talk to desktop applications through Windows-only APIs.
@@ -115,6 +145,8 @@ autocad-trimble-mcp/
 ├── autocad-mcp/          # everything for the AutoCAD server
 ├── trimble-mcp/          # everything for the Trimble server
 ├── tests/                # contract tests — no CAD software required
+├── docs/images/          # screenshots + how each one was produced
+├── scripts/              # window capture and redaction, for those screenshots
 └── .github/workflows/    # CI: lint, then tests on Python 3.10-3.13
 ```
 
@@ -129,7 +161,7 @@ entry point. To share just one of them, zip that folder and send it.
 pip install -r requirements-dev.txt
 
 ruff check .                 # lint
-pytest                       # 32 contract tests
+pytest                       # contract tests, no CAD software needed
 python install.py --check    # loads both servers, prints their tool counts
 ```
 
