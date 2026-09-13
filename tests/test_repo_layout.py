@@ -70,6 +70,46 @@ def test_gitignore_chan_cau_hinh_rieng_cua_may():
         assert muc in noi_dung, muc
 
 
+def test_anh_minh_chung_khong_bi_gitignore_chan():
+    """`.gitignore` chặn `*.pdf`, `*.xlsx`… ở gốc để file công việc của dự án thật không
+    lọt lên repo công khai. Ảnh trong `docs/images/` phải nằm ngoài diện đó — chặn nhầm
+    thì README trên GitHub hiện toàn ô ảnh vỡ, mà ở máy vẫn nhìn thấy bình thường nên
+    người sửa `.gitignore` không hề biết."""
+    import subprocess
+
+    thu_muc_anh = ROOT / "docs" / "images"
+    anh = sorted(thu_muc_anh.glob("*.png"))
+    assert anh, "docs/images/ phải có ít nhất một ảnh minh chứng"
+
+    for path in anh:
+        out = subprocess.run(
+            ["git", "check-ignore", str(path.relative_to(ROOT)).replace("\\", "/")],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+        )
+        # check-ignore trả 0 khi đường dẫn BỊ chặn, 1 khi không.
+        assert out.returncode != 0, "%s đang bị .gitignore chặn" % path.name
+
+
+def test_moi_anh_trong_docs_deu_duoc_nhac_toi_trong_tai_lieu():
+    """Ảnh không được README nào nhắc tới là ảnh chết: nó vẫn nằm trong lịch sử git,
+    vẫn phải rà thông tin nhận diện, mà không phục vụ ai."""
+    thu_muc_anh = ROOT / "docs" / "images"
+    van_ban = "\n".join(
+        p.read_text(encoding="utf-8")
+        for p in [
+            ROOT / "README.md",
+            ROOT / "README.vi.md",
+            thu_muc_anh / "README.md",
+            ROOT / "autocad-mcp" / "README.md",
+            ROOT / "trimble-mcp" / "README.md",
+        ]
+    )
+    for path in sorted(thu_muc_anh.glob("*.png")):
+        assert path.name in van_ban, "%s không được nhắc trong tài liệu nào" % path.name
+
+
 def test_khong_commit_cau_hinh_thuc_te_hay_cau_noi_da_bien_dich():
     for path in [".mcp.json", "trimble-mcp/trimble_mcp/bridge/TrimbleBridge.exe"]:
         import subprocess

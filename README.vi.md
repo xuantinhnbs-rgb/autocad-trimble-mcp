@@ -16,6 +16,36 @@ ra ngoài — AI luôn nhận được thông điệp đọc được thay vì v
 
 ---
 
+## 📸 Nó chạy ra thế nào
+
+### Một bản vẽ do MCP AutoCAD vẽ trọn vẹn
+
+![Mặt đứng trụ cầu do MCP server autocad-2022 vẽ](docs/images/autocad-pier-elevation.png)
+
+Năm layer, mặt cắt bê tông, bốn kích thước và ba ghi chú dẫn — vẽ vào một bản vẽ
+trống bằng 24 lời gọi tool, trong đó cả mười ba đối tượng hình học được tạo trong
+**một** lần `batch_draw` hết 0,194 s. Không mở file dự án nào.
+
+### 7 824 đối tượng IFC được tô màu theo type qua MCP Trimble
+
+![Mô hình cầu tô màu theo IFC type qua MCP server trimble-connect](docs/images/trimble-ifc-colour-by-type.png)
+
+`find_objects(by="type", …)` rồi `set_color` cho `IFCCOLUMN` (1 801, cam),
+`IFCBEAM` (3 857, xanh dương), `IFCSLAB` (1 896, xanh lá) và `IFCPLATE` (270, vàng).
+Phần còn màu gốc là những type không nằm trong danh sách đó.
+
+### Kiểm chứng cả hai server khi chưa cài phần mềm nào
+
+![install.py --check, ruff và pytest đều xanh](docs/images/install-check-and-tests.png)
+
+`install.py --check` nạp thử hai server và đếm được đủ tool, `ruff` sạch, test hợp
+đồng xanh — trên máy đang **đóng** cả AutoCAD lẫn Trimble Connect.
+
+[docs/images/README.md](docs/images/README.md) ghi lại đúng chuỗi lệnh đứng sau
+từng ảnh, để bạn dựng lại được chứ không phải tin suông.
+
+---
+
 ## 📁 Cấu trúc dự án
 
 ```
@@ -29,6 +59,8 @@ autocad-trimble-mcp/
 ├── trimble-mcp/          # ⬅ MỌI THỨ của MCP Trimble nằm trong đây
 │
 ├── tests/                # test hợp đồng — không cần AutoCAD hay Trimble
+├── docs/images/          # ảnh minh chứng + cách tạo lại từng ảnh
+├── scripts/              # chụp cửa sổ và che thông tin, phục vụ các ảnh trên
 └── .github/workflows/    # CI: lint, rồi test trên Python 3.10-3.13
 ```
 
@@ -108,7 +140,7 @@ Chi tiết theo từng app xem README riêng: [AutoCAD](autocad-mcp/README.md) �
 pip install -r requirements-dev.txt
 
 ruff check .                 # lint
-pytest                       # 32 test hợp đồng
+pytest                       # test hợp đồng, không cần cài AutoCAD/Trimble
 python install.py --check    # nạp thử hai server, in ra số tool
 ```
 

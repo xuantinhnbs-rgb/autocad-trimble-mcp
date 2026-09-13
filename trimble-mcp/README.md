@@ -2,6 +2,12 @@
 
 MCP Server cho phép các mô hình AI (Claude Code, Claude Desktop, Cursor, Cline, v.v.) kết nối và điều khiển trực tiếp **Trimble Connect for Desktop** đang chạy trên máy Windows của bạn.
 
+![Mô hình cầu tô màu theo IFC type qua MCP server này](../docs/images/trimble-ifc-colour-by-type.png)
+
+*7 824 đối tượng được tô màu theo IFC type trong một lượt: `IFCCOLUMN` 1 801 (cam),
+`IFCBEAM` 3 857 (xanh dương), `IFCSLAB` 1 896 (xanh lá), `IFCPLATE` 270 (vàng).
+Chuỗi lệnh đầy đủ nằm ở [docs/images/README.md](../docs/images/README.md).*
+
 ---
 
 ## ⚙️ Cách nó hoạt động
