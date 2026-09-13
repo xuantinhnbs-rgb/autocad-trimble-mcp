@@ -1,5 +1,6 @@
 """
-Script kiểm tra kết nối giữa Python COM và AutoCAD 2022 trên máy tính.
+Script kiểm tra kết nối giữa Python COM và AutoCAD trên máy tính (kiểm thử trên 2022,
+bản mới hơn kết nối qua ProgID COM chung - xem PROG_IDS trong autocad_client.py).
 
 Chạy trước khi khai báo MCP server để chắc chắn AutoCAD đã sẵn sàng.
 """
@@ -15,7 +16,7 @@ from autocad_client import AcadError, AutoCADClient
 
 def test() -> bool:
     print("=" * 60)
-    print("ĐANG KIỂM TRA KẾT NỐI TỚI AUTOCAD 2022...")
+    print("ĐANG KIỂM TRA KẾT NỐI TỚI AUTOCAD...")
     print("=" * 60)
 
     client = AutoCADClient()
@@ -27,7 +28,7 @@ def test() -> bool:
             print(" [CẢNH BÁO] AutoCAD đang dở một lệnh - hãy nhấn ESC trong AutoCAD.")
     except AcadError as exc:
         print(f" [LỖI] {exc}")
-        print("\n>> Gợi ý: Mở AutoCAD 2022 với ít nhất một bản vẽ rồi chạy lại script này.")
+        print("\n>> Gợi ý: Mở AutoCAD (2022 trở lên) với ít nhất một bản vẽ rồi chạy lại script này.")
         return False
 
     try:
@@ -46,7 +47,7 @@ def test() -> bool:
                   f"{'  <- hiện hành' if doc.get('is_active') else ''}")
 
         print("\n" + "=" * 60)
-        print("KẾT NỐI AUTOCAD 2022 HOÀN TOÀN SẴN SÀNG CHO MCP SERVER!")
+        print("KẾT NỐI AUTOCAD HOÀN TOÀN SẴN SÀNG CHO MCP SERVER!")
         print("=" * 60)
         return True
     except AcadError as exc:
