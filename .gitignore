@@ -35,6 +35,13 @@ _archive/
 # commit rong, clone ve khong co ma nguon, va sua o day cung khong theo doi duoc.
 navisworks-mcp/
 
+# Hai server duoi day cung la REPO GIT RIENG, nam long trong thu muc nay cho tien
+# doi chieu - cung ly do va cung hau qua nhu navisworks-mcp o tren:
+#   https://github.com/xuantinhnbs-rgb/recap-mcp
+#   https://github.com/xuantinhnbs-rgb/civil3d-mcp
+recap-mcp/
+civil3d-mcp/
+
 # Hai MCP server khac dang lam do, khong thuoc repo nay. De o day cho tien doi
 # chieu ma nguon, nhung khong dua vao git: "git add ." se keo ca hai vao repo,
 # va "ruff check ." o may se bao loi cua chung trong khi CI (chi thay repo nay)
@@ -70,3 +77,6 @@ midas-mcp/
 
 # Anh cua repo thi VAN phai vao git - do la vat chung trong tai lieu.
 !docs/images/*.png
+
+# SDK JavaScript của Forma, tải tự động ở lần chạy đầu
+forma-mcp/forma_mcp/web/vendor/
