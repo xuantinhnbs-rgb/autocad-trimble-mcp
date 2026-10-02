@@ -4,7 +4,7 @@
 mcp>=2.1.0
 
 # Giao tiep COM voi AutoCAD
-pywin32>=306
+pywin32>=312
 
 # Duong du phong khi win32com khong bam duoc vao AutoCAD dang chay
 comtypes>=1.2.0
