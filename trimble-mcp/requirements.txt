@@ -2,4 +2,4 @@
 # (.NET Framework 4.8 co san trong Windows 10/11 - khong can cai Visual Studio hay .NET SDK)
 
 # API mcp.server.mcpserver chi co tu mcp 2.x (ban 1.x dung fastmcp, khong tuong thich)
-mcp>=2.1.0
+mcp>=2.1.1
